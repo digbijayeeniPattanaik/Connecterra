@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Entities
 {
-    public class Cow
+    public class Cow : BaseEntity
     {
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int CowId { get; set; }

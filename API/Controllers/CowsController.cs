@@ -6,7 +6,6 @@ using API.Data;
 using API.Dtos;
 using API.Helpers;
 using AutoMapper;
-using Infrastructure.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

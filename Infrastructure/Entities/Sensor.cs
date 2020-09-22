@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Entities
 {
-    public class Sensor
+    public class Sensor : BaseEntity
     {
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int SensorId { get; set; }

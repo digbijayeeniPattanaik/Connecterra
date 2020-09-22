@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Entities
 {
-    public class Farm
+    public class Farm : BaseEntity
     {
         [DatabaseGeneratedAttribute(DatabaseGeneratedOption.Identity)]
         public int FarmId { get; set; }

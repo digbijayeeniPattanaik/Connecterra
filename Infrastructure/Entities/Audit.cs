@@ -2,9 +2,9 @@
 
 namespace Infrastructure.Entities
 {
-    public class Audit
+    public class Audit : BaseEntity
     {
-        public int Id { get; set; }
+        public int AuditId { get; set; }
         public string TableName { get; set; }
         public DateTime DateTime { get; set; }
         public string KeyValues { get; set; }
