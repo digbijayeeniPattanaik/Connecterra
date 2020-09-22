@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using API.Data;
 using AutoMapper;
+using Infrastructure.Common;
 using Infrastructure.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -14,18 +12,18 @@ namespace API.Controllers
     [ApiController]
     public class AuditController : ControllerBase
     {
-        private readonly FarmContext _farmContext;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public AuditController(FarmContext farmContext, IMapper mapper)
+        public AuditController(IUnitOfWork uow, IMapper mapper)
         {
-            _farmContext = farmContext;
+            _uow = uow;
             _mapper = mapper;
         }
 
         public async Task<ActionResult<IReadOnlyList<Audit>>> GetAuditList(string farm, string searchType, DateTime onDate)
         {
-            var auditList = await _farmContext.Audits.ToListAsync();
+            var auditList = await _uow.Repository<Audit>().GetListAllAsync();
 
             return Ok(auditList);
         }
