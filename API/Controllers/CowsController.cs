@@ -48,7 +48,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Cow>> Update([FromBody]CowDto cowDto)
+        public async Task<ActionResult<CowDto>> Update([FromBody]CowDto cowDto)
         {
             var cow = await _farmContext.Cows.Include(a => a.Farm).FirstOrDefaultAsync(a => a.CowId == cowDto.CowId);
             cow.State = (CowState)Enum.Parse(typeof(CowState), cowDto.State);
@@ -61,10 +61,10 @@ namespace API.Controllers
         }
 
         [HttpPost("{cowId}")]
-        public async Task<ActionResult<CowDto>> UpdateState(int cowId, [FromBody]CowStateUpdateDto cowStateUpdateDto)
+        public async Task<ActionResult<CowDto>> UpdateState(int cowId, [FromBody]StateDto stateDto)
         {
             var cow = await _farmContext.Cows.Include(a => a.Farm).FirstOrDefaultAsync(a => a.CowId == cowId);
-            cow.State = (CowState)Enum.Parse(typeof(CowState), cowStateUpdateDto.State);
+            cow.State = (CowState)Enum.Parse(typeof(CowState), stateDto.State);
             cow.UpdateDt = DateTime.Now;
             _farmContext.Cows.Attach(cow);
             _farmContext.Entry(cow).State = EntityState.Modified;

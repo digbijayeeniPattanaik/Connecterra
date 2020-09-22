@@ -1,6 +1,6 @@
 ﻿namespace API.Dtos
 {
-    public class CowStateUpdateDto
+    public class StateDto
     {
         public string State { get; set; }
     }

@@ -10,6 +10,8 @@ namespace API.Helpers
         {
             CreateMap<Cow, CowDto>()
                 .ForMember(a => a.Farm, o => o.MapFrom(a => a.Farm.Name)).ReverseMap();
+            CreateMap<Sensor, SensorDto>()
+                .ForMember(a => a.Farm, o => o.MapFrom(a => a.Farm.Name)).ReverseMap();
         }
     }
 }
