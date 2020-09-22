@@ -83,13 +83,13 @@ namespace API.Data
             }
 
             // Save audit entities that have all the modifications
-            foreach (var auditEntry in auditEntries.Where(_ => !_.HasTemporaryProperties))
+            foreach (var auditEntry in auditEntries.Where(a => !a.HasTemporaryProperties))
             {
                 Audits.Add(auditEntry.ToAudit());
             }
 
             // keep a list of entries where the value of some properties are unknown at this step
-            return auditEntries.Where(_ => _.HasTemporaryProperties).ToList();
+            return auditEntries.Where(a => a.HasTemporaryProperties).ToList();
         }
 
         private Task OnAfterSaveChanges(List<AuditEntry> auditEntries)
