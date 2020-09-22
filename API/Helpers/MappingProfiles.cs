@@ -12,6 +12,8 @@ namespace API.Helpers
                 .ForMember(a => a.Farm, o => o.MapFrom(a => a.Farm.Name)).ReverseMap();
             CreateMap<Sensor, SensorDto>()
                 .ForMember(a => a.Farm, o => o.MapFrom(a => a.Farm.Name)).ReverseMap();
+            CreateMap<Sensor, SensorAddDto>()
+                .ForMember(a => a.Farm, o => o.MapFrom(a => a.Farm.Name)).ReverseMap();
         }
     }
 }

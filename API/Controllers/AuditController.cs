@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Data;
 using AutoMapper;
@@ -21,7 +23,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        public async Task<ActionResult<IReadOnlyList<Audit>>> GetAuditList()
+        public async Task<ActionResult<IReadOnlyList<Audit>>> GetAuditList(string farm, string searchType, DateTime onDate)
         {
             var auditList = await _farmContext.Audits.ToListAsync();
 
