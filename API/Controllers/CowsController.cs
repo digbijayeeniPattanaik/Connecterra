@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using API.Data;
 using API.Dtos;
 using API.Helpers;
 using AutoMapper;
+using Infrastructure.Common;
+using Infrastructure.Entities;
+using Infrastructure.Specifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -16,18 +17,19 @@ namespace API.Controllers
     [ApiController]
     public class CowsController : ControllerBase
     {
-        private readonly FarmContext _farmContext;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public CowsController(FarmContext farmContext, IMapper mapper)
+        public CowsController(IUnitOfWork uow, IMapper mapper)
         {
-            _farmContext = farmContext;
+            _uow = uow;
             _mapper = mapper;
         }
         public async Task<ActionResult<IReadOnlyList<CowDto>>> GetCows()
         {
-            var cowList = await _farmContext.Cows.Include(a => a.Farm).ToListAsync();
+            var cowSpecification = new CowSpecifications();
 
+            var cowList = await _uow.Repository<Cow>().ListAsync(cowSpecification);
             return Ok(_mapper.Map<IReadOnlyList<CowDto>>(cowList));
         }
 
@@ -36,42 +38,35 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CowDto>> GetCow(int id)
         {
-            var cow = await _farmContext.Cows.Include(a => a.Farm).FirstOrDefaultAsync(a => a.CowId == id);
+            var cowSpecification = new CowSpecifications(a => a.CowId == id);
+            var cow = await _uow.Repository<Cow>().GetEntityWithSpec(cowSpecification);
 
             var mappedDto = _mapper.Map<CowDto>(cow);
 
             if (mappedDto != null)
                 return Ok(mappedDto);
             else
-                return NotFound((int)HttpStatusCode.NotFound);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<CowDto>> Update([FromBody]CowDto cowDto)
-        {
-            var cow = await _farmContext.Cows.Include(a => a.Farm).FirstOrDefaultAsync(a => a.CowId == cowDto.CowId);
-            cow.State = (CowState)Enum.Parse(typeof(CowState), cowDto.State);
-            cow.UpdateDt = DateTime.Now;
-            _farmContext.Cows.Attach(cow);
-            _farmContext.Entry(cow).State = EntityState.Modified;
-            int output = await _farmContext.SaveChangesAsync();
-            cowDto = _mapper.Map<CowDto>(cow);
-            return Ok(cowDto);
+                return NotFound("Cow not found");
         }
 
         [HttpPost("{cowId}")]
-        public async Task<ActionResult<CowDto>> UpdateState(int cowId, [FromBody]StateDto stateDto)
+        public async Task<ActionResult<CowDto>> Update(int cowId, [FromBody]StateDto stateDto)
         {
-            var cow = await _farmContext.Cows.Include(a => a.Farm).FirstOrDefaultAsync(a => a.CowId == cowId);
-            cow.State = (CowState)Enum.Parse(typeof(CowState), stateDto.State);
-            cow.UpdateDt = DateTime.Now;
-            _farmContext.Cows.Attach(cow);
-            _farmContext.Entry(cow).State = EntityState.Modified;
-            int output = await _farmContext.SaveChangesAsync();
+            var cowSpecification = new CowSpecifications(a => a.CowId == cowId);
+            var cow = await _uow.Repository<Cow>().GetEntityWithSpec(cowSpecification);
+            if (cow != null)
+            {
+                cow.State = (CowState)Enum.Parse(typeof(CowState), stateDto.State);
+                cow.UpdateDt = DateTime.Now;
+                _uow.Repository<Cow>().Update(cow);
+                int output = await _uow.Complete();
 
-            var cowDto = _mapper.Map<CowDto>(cow);
+                var cowDto = _mapper.Map<CowDto>(cow);
 
-            return Ok(cowDto);
+                return Ok(cowDto);
+            }
+
+            return NotFound("Cow not found");
         }
     }
 }

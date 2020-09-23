@@ -1,5 +1,7 @@
 using API.Data;
 using API.Helpers;
+using API.Providers;
+using API.Providers.Interfaces;
 using AutoMapper;
 using Infrastructure.Common;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +29,9 @@ namespace API
             services.AddAutoMapper(typeof(MappingProfiles));
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAuditDataProvider, AuditDataProvider>();
+            services.AddScoped<ICowDataProvider, CowDataProvider>();
+            services.AddScoped<ISensorDataProvider, SensorDataProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

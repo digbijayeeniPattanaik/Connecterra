@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
-using API.Data;
 using API.Dtos;
 using API.Helpers;
 using AutoMapper;
+using Infrastructure.Common;
 using Infrastructure.Entities;
+using Infrastructure.Specifications;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -18,17 +16,18 @@ namespace API.Controllers
     [ApiController]
     public class SensorsController : ControllerBase
     {
-        private readonly FarmContext _farmContext;
+        private readonly IUnitOfWork _uow;
         private readonly IMapper _mapper;
 
-        public SensorsController(FarmContext farmContext, IMapper mapper)
+        public SensorsController(IUnitOfWork uow, IMapper mapper)
         {
-            _farmContext = farmContext;
+            _uow = uow;
             _mapper = mapper;
         }
         public async Task<ActionResult<IReadOnlyList<SensorDto>>> GetSensors()
         {
-            var sensorList = await _farmContext.Sensors.Include(a => a.Farm).ToListAsync();
+            var sensorSpecification = new SensorSpecifications();
+            var sensorList = await _uow.Repository<Sensor>().ListAsync(sensorSpecification);
 
             return Ok(_mapper.Map<IReadOnlyList<SensorDto>>(sensorList));
         }
@@ -38,20 +37,20 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> GetSensor(int id)
         {
-            var sensor = await _farmContext.Sensors.Include(a => a.Farm).FirstOrDefaultAsync(a => a.SensorId == id);
-
+            var sensorSpecification = new SensorSpecifications(a => a.SensorId == id);
+            var sensor = await _uow.Repository<Sensor>().ListAsync(sensorSpecification);
             var mappedDto = _mapper.Map<SensorDto>(sensor);
 
             if (mappedDto != null)
                 return Ok(mappedDto);
             else
-                return NotFound((int)HttpStatusCode.NotFound);
+                return NotFound("Sensor not found");
         }
 
         [HttpPost]
         public async Task<ActionResult<SensorDto>> Add([FromBody]SensorAddDto sensorDto)
         {
-            var farm = await _farmContext.Farms.Where(a => a.Name == sensorDto.Farm).FirstOrDefaultAsync();
+            var farm = await _uow.Repository<Farm>().GetEntityWithSpec(new FarmNameSpecifications(a=> a.Name.ToLower() == sensorDto.Farm.ToLower()));
 
             if (farm != null)
             {
@@ -59,9 +58,8 @@ namespace API.Controllers
                 sensor.FarmId = farm.FarmId;
                 sensor.State = (SensorState)Enum.Parse(typeof(SensorState), sensorDto.State);
                 sensor.CreateDt = DateTime.Now;
-                _farmContext.Sensors.Add(sensor);
-                _farmContext.Entry(sensor).State = EntityState.Added;
-                int output = await _farmContext.SaveChangesAsync();
+                _uow.Repository<Sensor>().Add(sensor);
+                int output = await _uow.Complete();
                 return Ok(_mapper.Map<SensorDto>(sensor));
             }
 
@@ -71,16 +69,21 @@ namespace API.Controllers
         [HttpPost("{sensorId}")]
         public async Task<ActionResult<SensorDto>> Update(int sensorId, [FromBody]StateDto stateDto)
         {
-            var sensor = await _farmContext.Sensors.Include(a => a.Farm).FirstOrDefaultAsync(a => a.SensorId == sensorId);
-            sensor.State = (SensorState)Enum.Parse(typeof(SensorState), stateDto.State);
-            sensor.UpdateDt = DateTime.Now;
-            _farmContext.Sensors.Attach(sensor);
-            _farmContext.Entry(sensor).State = EntityState.Modified;
-            int output = await _farmContext.SaveChangesAsync();
+            var sensor = await _uow.Repository<Sensor>().GetEntityWithSpec(new SensorSpecifications(a => a.SensorId == sensorId));
 
-            var sensorDto = _mapper.Map<SensorDto>(sensor);
+            if (sensor != null)
+            {
+                sensor.State = (SensorState)Enum.Parse(typeof(SensorState), stateDto.State);
+                sensor.UpdateDt = DateTime.Now;
+                _uow.Repository<Sensor>().Update(sensor);
+                int output = await _uow.Complete();
 
-            return Ok(sensorDto);
+                var sensorDto = _mapper.Map<SensorDto>(sensor);
+
+                return Ok(sensorDto);
+            }
+
+            return NotFound("Sensor not found");
         }
     }
 }

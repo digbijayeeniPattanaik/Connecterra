@@ -20,12 +20,12 @@ namespace Infrastructure.Common
         }
         public void Add(T entity)
         {
-            throw new NotImplementedException();
+            _context.Set<T>().Add(entity);
         }
 
         public void Delete(T entity)
         {
-            throw new NotImplementedException();
+            _context.Set<T>().Remove(entity);
         }
 
         public async Task<T> GetByIdAsync(int id)
