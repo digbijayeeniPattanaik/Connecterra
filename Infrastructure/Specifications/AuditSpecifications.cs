@@ -12,7 +12,7 @@ namespace Infrastructure.Specifications
            (string.IsNullOrWhiteSpace(searchType) || a.TableName.Equals(searchType, StringComparison.InvariantCultureIgnoreCase)) &&
            (!farmId.HasValue || (int?)JObject.Parse(a.NewValues)["FarmId"] == farmId) &&
            (string.IsNullOrWhiteSpace(state) || a.NewValues.ToLower().Contains(state.ToLower())) &&
-           (!onDate.HasValue || a.DateTime == onDate))
+           (!onDate.HasValue || a.AuditDate == onDate))
         {
         }
     }

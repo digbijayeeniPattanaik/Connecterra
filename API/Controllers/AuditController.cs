@@ -10,7 +10,6 @@ using Infrastructure.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
@@ -32,6 +31,11 @@ namespace API.Controllers
         [HttpGet()]
         public async Task<ActionResult<IReadOnlyList<Audit>>> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
         {
+            string whereClause = string.Empty;
+            if (onDate != null || !string.IsNullOrWhiteSpace(state) || !string.IsNullOrWhiteSpace(searchType) || !string.IsNullOrWhiteSpace(farm)) whereClause = " WHERE ";
+
+            var sqlParameters = new List<SqlParameter>();
+
             int? farmId = null;
             if (!string.IsNullOrWhiteSpace(farm))
             {
@@ -41,23 +45,44 @@ namespace API.Controllers
 
                 if (farmEntity != null)
                     farmId = farmEntity.FarmId;
+
+                whereClause += " JSON_VALUE(NewValues, '$.FarmId') =  @FarmId AND ";
+                SqlParameter farmIdParameter = new SqlParameter() { ParameterName = "@FarmId", Value = farmId };
+                sqlParameters.Add(farmIdParameter);
             }
 
-            SqlParameter farmIdParameter = new SqlParameter("@FarmId", value: farmId);
-            var auditList = _farmContext.Audits.FromSqlRaw("SELECT * FROM Audits WHERE JSON_VALUE(NewValues, '$.FarmId') =  @FarmId", farmIdParameter).ToList();
-
-            //var auditList = _farmContext.Audits.Where(itema => (int?)JObject.Parse(itema.NewValues)["FarmId"] == farmId).ToList();
-
-            ////var auditList = _farmContext.Audits.ToList();
-            //var auditList = _farmContext.Audits.Where(itema => itema.NewValuesSerialized != null && Convert.ToInt32(itema.NewValuesSerialized["FarmId"]) == Convert.ToInt32(farmId)).ToList();
-            foreach (var item in auditList)
+            if (onDate != null)
             {
-                var test = JObject.Parse(item.NewValues);
-                var f = (int?)test["FarmId"];
-                var boolsss = (int?)JObject.Parse(item.NewValues)["FarmId"] == farmId;
+                whereClause += " cast(AuditDate as date) = @OnDate AND ";
+                SqlParameter onDateParameter = new SqlParameter()
+                {
+                    ParameterName = "@OnDate",
+                    SqlDbType = System.Data.SqlDbType.DateTime,
+                    IsNullable = true,
+                    Value = onDate
+                };
+                sqlParameters.Add(onDateParameter);
             }
-            ////var auditSpecifications = new AuditSpecifications(onDate, state, searchType, farmId);
-            ////var auditList = await _uow.Repository<Audit>().ListAsync(auditSpecifications);
+
+            if (!string.IsNullOrWhiteSpace(state))
+            {
+                whereClause += " JSON_VALUE(NewValues, '$.State') =  @State AND ";
+                SqlParameter stateParameter = new SqlParameter() { ParameterName = "@State", Value = state };
+                sqlParameters.Add(stateParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchType))
+            {
+                whereClause += "  TableName = @SearchType ";
+                SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
+                sqlParameters.Add(searchTypeParameter);
+            }
+
+            if (whereClause.EndsWith(" AND ")) whereClause = whereClause.Substring(0, whereClause.LastIndexOf(" AND "));
+
+           
+            string sqlQuery = string.Format("SELECT * FROM Audits {0}", whereClause);
+            var auditList = _farmContext.Audits.FromSqlRaw(sqlQuery, sqlParameters.ToArray()).ToList();
 
             return Ok(auditList);
         }

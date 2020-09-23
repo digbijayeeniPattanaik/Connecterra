@@ -25,7 +25,7 @@ namespace Infrastructure.Entities
         {
             var audit = new Audit();
             audit.TableName = TableName;
-            audit.DateTime = DateTime.UtcNow;
+            audit.AuditDate = DateTime.UtcNow;
             audit.KeyValues = JsonConvert.SerializeObject(KeyValues);
             audit.OldValues = OldValues.Count == 0 ? null : JsonConvert.SerializeObject(OldValues);
             audit.NewValues = NewValues.Count == 0 ? null : JsonConvert.SerializeObject(NewValues);

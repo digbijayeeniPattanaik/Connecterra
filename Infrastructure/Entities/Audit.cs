@@ -9,7 +9,7 @@ namespace Infrastructure.Entities
     {
         public int AuditId { get; set; }
         public string TableName { get; set; }
-        public DateTime DateTime { get; set; }
+        public DateTime AuditDate { get; set; }
         public string KeyValues { get; set; }
         public string OldValues { get; set; }
         public string NewValues { get; set; }
