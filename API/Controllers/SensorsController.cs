@@ -20,6 +20,8 @@ namespace API.Controllers
             _sensorDataProvider = sensorDataProvider;
             _mapper = mapper;
         }
+
+        [HttpGet()]
         public async Task<ActionResult<IReadOnlyList<SensorDto>>> GetSensors()
         {
             var sensorList = await _sensorDataProvider.GetSensors();

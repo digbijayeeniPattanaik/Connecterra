@@ -31,7 +31,11 @@ namespace API.Providers
                 sensor.CreateDt = DateTime.Now;
                 _uow.Repository<Sensor>().Add(sensor);
                 int output = await _uow.Complete();
-                return sensor;
+
+                if (output >= 1)
+                {
+                    return sensor;
+                }
             }
 
             return null;
@@ -61,7 +65,10 @@ namespace API.Providers
                 sensor.UpdateDt = DateTime.Now;
                 _uow.Repository<Sensor>().Update(sensor);
                 int output = await _uow.Complete();
-                return sensor;
+                if (output >= 1)
+                {
+                    return sensor;
+                }
             }
 
             return null;
