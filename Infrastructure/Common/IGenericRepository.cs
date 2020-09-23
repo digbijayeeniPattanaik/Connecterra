@@ -1,4 +1,5 @@
-﻿using Infrastructure.Entities;
+﻿using Infrastructure.Data.Specifications;
+using Infrastructure.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,5 +12,7 @@ namespace Infrastructure.Common
         void Add(T entity);
         void Update(T entity);
         void Delete(T entity);
+        Task<T> GetEntityWithSpec(ISpecification<T> spec);
+        Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
     }
 }

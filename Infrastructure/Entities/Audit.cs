@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Entities
 {
@@ -10,5 +13,12 @@ namespace Infrastructure.Entities
         public string KeyValues { get; set; }
         public string OldValues { get; set; }
         public string NewValues { get; set; }
+
+        [NotMapped]
+        public Dictionary<string, object> NewValuesSerialized
+        {
+            get { return NewValues == null ? null : JsonConvert.DeserializeObject<Dictionary<string, object>>(NewValues); }
+            set { NewValues = JsonConvert.SerializeObject(value); }
+        }
     }
 }
