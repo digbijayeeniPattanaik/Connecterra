@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using API.Data;
 using AutoMapper;
 using Infrastructure.Common;
 using Infrastructure.Entities;
 using Infrastructure.Specifications;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -18,13 +15,11 @@ namespace API.Controllers
     public class AuditController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
-        private readonly FarmContext _farmContext;
         private readonly IMapper _mapper;
 
-        public AuditController(IUnitOfWork uow, FarmContext farmContext, IMapper mapper)
+        public AuditController(IUnitOfWork uow, IMapper mapper)
         {
             _uow = uow;
-            _farmContext = farmContext;
             _mapper = mapper;
         }
 
@@ -82,7 +77,8 @@ namespace API.Controllers
 
            
             string sqlQuery = string.Format("SELECT * FROM Audits {0}", whereClause);
-            var auditList = _farmContext.Audits.FromSqlRaw(sqlQuery, sqlParameters.ToArray()).ToList();
+            var auditList = _uow.Repository<Audit>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
+
 
             return Ok(auditList);
         }

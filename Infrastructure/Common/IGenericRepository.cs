@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Data.Specifications;
 using Infrastructure.Entities;
+using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -14,5 +15,6 @@ namespace Infrastructure.Common
         void Delete(T entity);
         Task<T> GetEntityWithSpec(ISpecification<T> spec);
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
+        List<T> QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters);
     }
 }

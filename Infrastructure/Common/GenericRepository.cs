@@ -1,6 +1,7 @@
 ﻿using API.Data;
 using Infrastructure.Data.Specifications;
 using Infrastructure.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ namespace Infrastructure.Common
 
         public async Task<IReadOnlyList<T>> GetListAllAsync()
         {
-            return await _context.Set<T>().ToListAsync(); 
+            return await _context.Set<T>().ToListAsync();
         }
 
         public void Update(T entity)
@@ -51,6 +52,11 @@ namespace Infrastructure.Common
         public async Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec)
         {
             return await ApplySpecification(spec).ToListAsync();
+        }
+
+        public List<T> QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters)
+        {
+            return _context.Set<T>().FromSqlRaw(sqlQuery, sqlParameters).ToList();
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)
