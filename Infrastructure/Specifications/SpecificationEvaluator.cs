@@ -1,10 +1,9 @@
-﻿using Infrastructure.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace Infrastructure.Data.Specifications
 {
-    public class SpecificationEvaluator<T> where T : BaseEntity
+    public class SpecificationEvaluator<T> where T : class
     {
         public static IQueryable<T> GetQuery(IQueryable<T> inputQuery, ISpecification<T> spec)
         {

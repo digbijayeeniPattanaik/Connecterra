@@ -1,16 +1,14 @@
 ﻿using API.Data;
 using Infrastructure.Data.Specifications;
-using Infrastructure.Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Common
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly FarmContext _context;
 

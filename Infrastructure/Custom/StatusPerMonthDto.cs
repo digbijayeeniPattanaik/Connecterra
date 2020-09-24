@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Custom
 {
-    public class StatusPerMonthDto : BaseEntity
+    public class StatusPerMonthDto
     {
         public int Id { get; set; }
         public int Count { get; set; }

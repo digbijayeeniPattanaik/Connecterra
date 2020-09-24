@@ -24,7 +24,7 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet()]
+        [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<SensorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<SensorDto>>> GetSensors()
@@ -78,7 +78,7 @@ namespace API.Controllers
             return NotFound("Sensor not found");
         }
 
-        [HttpGet("{state}/average/{year}")]
+        [HttpGet("average")]
         [ProducesResponseType(typeof(IReadOnlyList<AveragePerMonthDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<AveragePerMonthDto>>> GetSensorsAveragePerMonth(string state, int year)

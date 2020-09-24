@@ -1,10 +1,6 @@
 ﻿using API.Data;
-using Infrastructure.Entities;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Common
@@ -29,7 +25,7 @@ namespace Infrastructure.Common
             _farmContext.Dispose();
         }
 
-        public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : BaseEntity
+        public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : class
         {
             if (_repositories == null) _repositories = new Hashtable();
 

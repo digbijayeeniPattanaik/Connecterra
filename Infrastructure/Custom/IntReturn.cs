@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Custom
 {
-    public class IntReturn : BaseEntity
+    public class IntReturn
     {
         public int Value { get; set; }
     }

@@ -2,7 +2,7 @@
 
 namespace Infrastructure.Custom
 {
-    public class AveragePerMonthDto : BaseEntity
+    public class AveragePerMonthDto
     {
         public string Month { get; set; }
         public int Count { get; set; }

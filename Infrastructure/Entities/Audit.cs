@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure.Entities
 {
-    public class Audit : BaseEntity
+    public class Audit
     {
         public int AuditId { get; set; }
         public string TableName { get; set; }
