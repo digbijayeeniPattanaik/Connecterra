@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Helpers;
 using API.Providers.Interfaces;
+using Infrastructure;
 using Infrastructure.Common;
 using Infrastructure.Entities;
 using Infrastructure.Specifications;
@@ -33,23 +35,35 @@ namespace API.Providers
             return cowList;
         }
 
-        public async Task<Cow> Update(int cowId, StateDto stateDto)
+        public async Task<Outcome<Cow>> Update(int cowId, StateDto stateDto)
         {
+            var result = new Outcome<Cow>();
+
+            if (!Enum.GetNames(typeof(CowState)).Any(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.ErrorMessage = "State is not valid";
+                return result;
+            }
+
             var cowSpecification = new CowSpecifications(a => a.CowId == cowId);
             var cow = await _uow.Repository<Cow>().GetEntityWithSpec(cowSpecification);
             if (cow != null)
             {
-                cow.State = (CowState)Enum.Parse(typeof(CowState), stateDto.State);
-                cow.UpdateDt = DateTime.Now;
-                _uow.Repository<Cow>().Update(cow);
-                int output = await _uow.Complete();
-                if (output >= 1)
+                var state = Enum.GetNames(typeof(CowState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
+                //// if the state is same
+                if (cow.State != (CowState)Enum.Parse(typeof(CowState), state))
                 {
-                    return cow;
+                    cow.State = (CowState)Enum.Parse(typeof(CowState), state);
+                    cow.UpdateDt = DateTime.Now;
+                    _uow.Repository<Cow>().Update(cow);
+                    int output = await _uow.Complete();
                 }
+                result.Result = cow;
             }
+            else
+                result.ErrorMessage = "Cow not found";
 
-            return null;
+            return result;
         }
     }
 }

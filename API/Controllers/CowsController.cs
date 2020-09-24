@@ -19,7 +19,7 @@ namespace API.Controllers
         private readonly IAuditDataProvider _auditDataProvider;
         private readonly IMapper _mapper;
 
-        public CowsController(ICowDataProvider cowDataProvider,IAuditDataProvider auditDataProvider, IMapper mapper)
+        public CowsController(ICowDataProvider cowDataProvider, IAuditDataProvider auditDataProvider, IMapper mapper)
         {
             _cowDataProvider = cowDataProvider;
             _auditDataProvider = auditDataProvider;
@@ -55,25 +55,28 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CowDto>> Update(int cowId, [FromBody]StateDto stateDto)
         {
-            var cow = await _cowDataProvider.Update(cowId, stateDto);
+            var outcome = await _cowDataProvider.Update(cowId, stateDto);
 
-            if (cow != null)
+            if (outcome.Successful)
             {
-                var cowDto = _mapper.Map<CowDto>(cow);
+                var cowDto = _mapper.Map<CowDto>(outcome.Result);
                 return Ok(cowDto);
             }
 
-            return NotFound("Cow not found");
+            return BadRequest(outcome.ErrorMessage);
         }
 
         [HttpGet("count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<int>> GetCowCountBasedOnDate(string farm, string state, DateTime onDate)
         {
-            var count = await Task.FromResult(_auditDataProvider.GetStateCountPerDate(onDate, state, "Cows", farm));
+            var countOutcome = await Task.FromResult(_auditDataProvider.GetStateCountPerDate(onDate, state, "Cows", farm));
 
-            return Ok(count);
+            if (countOutcome.Successful)
+                return Ok(countOutcome.Result);
+
+            return BadRequest(countOutcome.ErrorMessage);
         }
 
     }

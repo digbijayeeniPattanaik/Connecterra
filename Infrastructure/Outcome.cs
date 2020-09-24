@@ -2,7 +2,7 @@
 
 namespace Infrastructure
 {
-    public class Outcome<T> where T : class
+    public class Outcome<T>
     {
         private const string _defaultMessage = "An error occurred";
 

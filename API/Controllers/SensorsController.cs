@@ -67,15 +67,15 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> Update(int sensorId, [FromBody]StateDto stateDto)
         {
-            var sensor = await _sensorDataProvider.Update(sensorId, stateDto);
+            var outcome = await _sensorDataProvider.Update(sensorId, stateDto);
 
-            if (sensor != null)
+            if (outcome.Successful)
             {
-                var sensorDto = _mapper.Map<SensorDto>(sensor);
+                var sensorDto = _mapper.Map<SensorDto>(outcome.Result);
                 return Ok(sensorDto);
             }
 
-            return NotFound("Sensor not found");
+            return BadRequest(outcome.ErrorMessage);
         }
 
         [HttpGet("average")]

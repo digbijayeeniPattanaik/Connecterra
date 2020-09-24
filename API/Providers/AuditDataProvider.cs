@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using API.Helpers;
 using API.Providers.Interfaces;
 using AutoMapper;
+using Infrastructure;
 using Infrastructure.Common;
 using Infrastructure.Custom;
 using Infrastructure.Entities;
@@ -136,18 +138,28 @@ namespace API.Providers
             return count;
         }
 
-        public int GetStateCountPerDate(DateTime? onDate, string state, string searchType, string farm)
+        public Outcome<int> GetStateCountPerDate(DateTime? onDate, string state, string searchType, string farm)
         {
+            var result = new Outcome<int>();
+            List<string> errorMessages = new List<string>();
+            if (!Enum.GetNames(typeof(CowState)).Any(x => x.Equals(state, StringComparison.InvariantCultureIgnoreCase))) errorMessages.Add("State is not valid");
+
+            var farmEntity = GetFarmDetails(farm);
+            int? farmId = null;
+            if (farmEntity != null)
+                farmId = farmEntity.FarmId;
+            else
+                errorMessages.Add("Farm is not valid");
+
+            if (errorMessages != null && errorMessages.Any())
+            {
+                result.ErrorMessage = string.Join(",",errorMessages.ToList());
+                return result;
+            }
             var sqlParameters = new List<SqlParameter>();
 
-            int? farmId = null;
             if (!string.IsNullOrWhiteSpace(farm))
             {
-                var farmEntity = GetFarmDetails(farm);
-
-                if (farmEntity != null)
-                    farmId = farmEntity.FarmId;
-
                 SqlParameter farmIdParameter = new SqlParameter() { ParameterName = "@FarmId", Value = farmId };
                 sqlParameters.Add(farmIdParameter);
             }
@@ -175,7 +187,7 @@ namespace API.Providers
                 SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
                 sqlParameters.Add(searchTypeParameter);
             }
-         
+
             string sqlQuery = string.Format(@"
                     select Cast( JSON_VALUE(KeyValues, '$.CowId') as int) as Id , Count(*) as [Count] from Audits where tablename = @SearchType  and cast(AuditDate as date) = @OnDate
                     and  JSON_VALUE(NewValues, '$.State') =  @State
@@ -183,9 +195,11 @@ namespace API.Providers
                     group by JSON_VALUE(KeyValues, '$.CowId') ");
 
             var auditList = _uow.Repository<StatusPerMonthDto>().QueryFromSqlRawReturnList(sqlQuery, sqlParameters.ToArray());
+            int count = 0;
+            if (auditList == null || !auditList.Any()) result.Result = count;
+            else result.Result = auditList.Count;
 
-            if (auditList == null || !auditList.Any()) return 0;
-            return auditList.Count;
+            return result;
         }
 
 

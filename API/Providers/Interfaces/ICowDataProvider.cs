@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using Infrastructure;
 using Infrastructure.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -11,6 +12,6 @@ namespace API.Providers.Interfaces
 
         Task<Cow> GetCow(int id);
 
-        Task<Cow> Update(int cowId, StateDto stateDto);
+        Task<Outcome<Cow>> Update(int cowId, StateDto stateDto);
     }
 }

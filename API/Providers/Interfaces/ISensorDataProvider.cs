@@ -1,4 +1,5 @@
 ﻿using API.Dtos;
+using Infrastructure;
 using Infrastructure.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,6 +11,6 @@ namespace API.Providers.Interfaces
         Task<IReadOnlyList<Sensor>> GetSensors();
         Task<Sensor> GetSensor(int id);
         Task<Sensor> Add(SensorAddDto sensorDto);
-        Task<Sensor> Update(int sensorId, StateDto stateDto);
+        Task<Outcome<Sensor>> Update(int sensorId, StateDto stateDto);
     }
 }

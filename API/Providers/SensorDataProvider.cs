@@ -1,11 +1,13 @@
 ﻿using API.Dtos;
 using API.Helpers;
 using API.Providers.Interfaces;
+using Infrastructure;
 using Infrastructure.Common;
 using Infrastructure.Entities;
 using Infrastructure.Specifications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace API.Providers
@@ -55,23 +57,34 @@ namespace API.Providers
             return sensorList;
         }
 
-        public async Task<Sensor> Update(int sensorId, StateDto stateDto)
+        public async Task<Outcome<Sensor>> Update(int sensorId, StateDto stateDto)
         {
+            var result = new Outcome<Sensor>();
+
+            if (!Enum.GetNames(typeof(SensorState)).Any(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.ErrorMessage = "State is not valid";
+                return result;
+            }
+
             var sensor = _uow.Repository<Sensor>().GetEntityWithSpec(new SensorSpecifications(a => a.SensorId == sensorId)).Result;
 
             if (sensor != null)
             {
-                sensor.State = (SensorState)Enum.Parse(typeof(SensorState), stateDto.State);
-                sensor.UpdateDt = DateTime.Now;
-                _uow.Repository<Sensor>().Update(sensor);
-                int output = await _uow.Complete();
-                if (output >= 1)
+                var state = Enum.GetNames(typeof(SensorState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
+                //// if the state is same
+                if (sensor.State != (SensorState)Enum.Parse(typeof(SensorState), state))
                 {
-                    return sensor;
+                    sensor.State = (SensorState)Enum.Parse(typeof(SensorState), state);
+                    sensor.UpdateDt = DateTime.Now;
+                    _uow.Repository<Sensor>().Update(sensor);
+                    int output = await _uow.Complete();
                 }
+                result.Result = sensor;
             }
+            else result.ErrorMessage = "Cow not found";
 
-            return null;
+            return result;
 
         }
     }
