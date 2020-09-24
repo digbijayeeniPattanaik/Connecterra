@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using API.Providers.Interfaces;
 using AutoMapper;
 using Infrastructure.Common;
+using Infrastructure.Custom;
 using Infrastructure.Entities;
 using Infrastructure.Specifications;
 using Microsoft.Data.SqlClient;
@@ -72,9 +73,98 @@ namespace API.Providers
             if (whereClause.EndsWith(" AND ")) whereClause = whereClause.Substring(0, whereClause.LastIndexOf(" AND "));
 
             string sqlQuery = string.Format("SELECT * FROM Audits {0}", whereClause);
-            var auditList = _uow.Repository<Audit>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
+            var auditList = _uow.Repository<Audit>().QueryFromSqlRawReturnList(sqlQuery, sqlParameters.ToArray());
 
             return auditList;
+        }
+
+        public List<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            if (year != 0)
+            {
+                SqlParameter yearParameter = new SqlParameter() { ParameterName = "@Year", Value = year };
+                sqlParameters.Add(yearParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(state))
+            {
+                SqlParameter stateParameter = new SqlParameter() { ParameterName = "@State", Value = state };
+                sqlParameters.Add(stateParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchType))
+            {
+                SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
+                sqlParameters.Add(searchTypeParameter);
+            }
+
+            string sqlQuery = string.Format(@"SELECT DATENAME(MONTH, AuditDate) AS [Month], COUNT(*) AS [Count] FROM Audits WHERE TableName = @SearchType  AND YEAR(AuditDate) = @Year 
+              AND  JSON_VALUE(NewValues, '$.State') =  @State
+              GROUP BY DATENAME(MONTH, AuditDate)");
+
+            var auditList = _uow.Repository<AveragePerMonthDto>().QueryFromSqlRawReturnList(sqlQuery, sqlParameters.ToArray());
+
+            return auditList;
+        }
+
+        public IntReturn GetCountPerMonth(string state, string month, string searchType)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            if (!string.IsNullOrWhiteSpace(month))
+            {
+                SqlParameter yearParameter = new SqlParameter() { ParameterName = "@Month", Value = month };
+                sqlParameters.Add(yearParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(state))
+            {
+                SqlParameter stateParameter = new SqlParameter() { ParameterName = "@State", Value = state };
+                sqlParameters.Add(stateParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchType))
+            {
+                SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
+                sqlParameters.Add(searchTypeParameter);
+            }
+
+            string sqlQuery = string.Format(@"SELECT COUNT(*) AS [Value] FROM Audits WHERE TableName = @SearchType  AND DATENAME(MONTH, AuditDate) =  @Month
+               AND  JSON_VALUE(NewValues, '$.State') =  @State  ");
+
+            var count = _uow.Repository<IntReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
+
+            return count;
+        }
+
+        public IntReturn GetStatePerMonth(string state, int month, string searchType)
+        {
+            List<SqlParameter> sqlParameters = new List<SqlParameter>();
+            if (month != 0)
+            {
+                SqlParameter yearParameter = new SqlParameter() { ParameterName = "@Month", Value = month };
+                sqlParameters.Add(yearParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(state))
+            {
+                SqlParameter stateParameter = new SqlParameter() { ParameterName = "@State", Value = state };
+                sqlParameters.Add(stateParameter);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchType))
+            {
+                SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
+                sqlParameters.Add(searchTypeParameter);
+            }
+
+            string sqlQuery = string.Format(@"SELECT MONTH(AuditDate) AS [Month], COUNT(*) AS [Count] FROM Audits WHERE TableName = @SearchType  AND YEAR(AuditDate) = @Year 
+              AND  JSON_VALUE(NewValues, '$.State') =  @State
+              GROUP BY MONTH(AuditDate)");
+
+            var count = _uow.Repository<IntReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
+
+            return count;
         }
     }
 }

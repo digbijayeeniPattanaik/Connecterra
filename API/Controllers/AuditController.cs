@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using API.Providers.Interfaces;
 using AutoMapper;
 using Infrastructure.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -21,10 +23,12 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet()]
-        public ActionResult<List<Audit>> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
+        [HttpGet]
+        [ProducesResponseType(typeof(List<Audit>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<Audit>>> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
         {
-            var auditList = auditDataProvider.GetAuditList(onDate, state, searchType, farm);
+            var auditList = await Task.FromResult(auditDataProvider.GetAuditList(onDate, state, searchType, farm));
             return Ok(auditList);
         }
     }

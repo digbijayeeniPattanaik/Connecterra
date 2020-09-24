@@ -15,6 +15,7 @@ namespace Infrastructure.Common
         void Delete(T entity);
         Task<T> GetEntityWithSpec(ISpecification<T> spec);
         Task<IReadOnlyList<T>> ListAsync(ISpecification<T> spec);
-        List<T> QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters);
+        List<T> QueryFromSqlRawReturnList(string sqlQuery, SqlParameter[] sqlParameters);
+        T QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters);
     }
 }

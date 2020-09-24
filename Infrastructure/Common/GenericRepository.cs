@@ -54,9 +54,14 @@ namespace Infrastructure.Common
             return await ApplySpecification(spec).ToListAsync();
         }
 
-        public List<T> QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters)
+        public List<T> QueryFromSqlRawReturnList(string sqlQuery, SqlParameter[] sqlParameters)
         {
             return _context.Set<T>().FromSqlRaw(sqlQuery, sqlParameters).ToList();
+        }
+
+        public T QueryFromSqlRaw(string sqlQuery, SqlParameter[] sqlParameters)
+        {
+            return _context.Set<T>().FromSqlRaw(sqlQuery, sqlParameters).FirstOrDefault();
         }
 
         private IQueryable<T> ApplySpecification(ISpecification<T> spec)

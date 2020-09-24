@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using API.Dtos;
 using API.Providers.Interfaces;
 using AutoMapper;
+using Infrastructure.Custom;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,15 +14,19 @@ namespace API.Controllers
     public class SensorsController : ControllerBase
     {
         private readonly ISensorDataProvider _sensorDataProvider;
+        private readonly IAuditDataProvider _auditDataProvider;
         private readonly IMapper _mapper;
 
-        public SensorsController(ISensorDataProvider sensorDataProvider, IMapper mapper)
+        public SensorsController(ISensorDataProvider sensorDataProvider, IAuditDataProvider auditDataProvider, IMapper mapper)
         {
             _sensorDataProvider = sensorDataProvider;
+            _auditDataProvider = auditDataProvider;
             _mapper = mapper;
         }
 
         [HttpGet()]
+        [ProducesResponseType(typeof(IReadOnlyList<SensorDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<SensorDto>>> GetSensors()
         {
             var sensorList = await _sensorDataProvider.GetSensors();
@@ -29,7 +34,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> GetSensor(int id)
         {
@@ -43,7 +48,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> Add([FromBody]SensorAddDto sensorDto)
         {
@@ -58,7 +63,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{sensorId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> Update(int sensorId, [FromBody]StateDto stateDto)
         {
@@ -71,6 +76,24 @@ namespace API.Controllers
             }
 
             return NotFound("Sensor not found");
+        }
+
+        [HttpGet("{state}/average/{year}")]
+        [ProducesResponseType(typeof(IReadOnlyList<AveragePerMonthDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IReadOnlyList<AveragePerMonthDto>>> GetSensorsAveragePerMonth(string state, int year)
+        {
+            var average = await Task.FromResult(_auditDataProvider.GetAveragePerMonth(state, year, "Sensors"));
+            return Ok(average);
+        }
+
+        [HttpGet("{state}/count/{month}")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<int>> GetSensorCountPerMonth(string state, string month)
+        {
+            var average = await Task.FromResult(_auditDataProvider.GetCountPerMonth(state, month, "Sensors"));
+            return Ok(average.Value);
         }
     }
 }

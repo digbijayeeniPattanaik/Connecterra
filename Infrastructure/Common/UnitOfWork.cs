@@ -1,7 +1,10 @@
 ﻿using API.Data;
 using Infrastructure.Entities;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Common

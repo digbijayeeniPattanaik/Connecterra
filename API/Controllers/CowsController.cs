@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using API.Dtos;
 using API.Providers.Interfaces;
@@ -12,7 +13,7 @@ namespace API.Controllers
     [ApiController]
     public class CowsController : ControllerBase
     {
-        private readonly ICowDataProvider _cowDataProvider;
+        private readonly ICowDataProvider _cowDataProvider; 
         private readonly IMapper _mapper;
 
         public CowsController(ICowDataProvider cowDataProvider, IMapper mapper)
@@ -22,7 +23,7 @@ namespace API.Controllers
         }
 
         [HttpGet()]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IReadOnlyList<CowDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<IReadOnlyList<CowDto>>> GetCows()
         {
@@ -31,7 +32,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CowDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CowDto>> GetCow(int id)
         {
@@ -46,7 +47,7 @@ namespace API.Controllers
         }
 
         [HttpPost("{cowId}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CowDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CowDto>> Update(int cowId, [FromBody]StateDto stateDto)
         {

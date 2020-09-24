@@ -1,4 +1,5 @@
 ﻿using API.Helpers;
+using Infrastructure.Custom;
 using Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -20,6 +21,9 @@ namespace API.Data
         public DbSet<Sensor> Sensors { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<Farm> Farms { get; set; }
+        ////public DbSet<IntReturn> IntReturn { get; set; }
+        ////public DbSet<AveragePerYearDto> AveragePerYearDtos { get; set; }
+        ////public DbSet<CowStatusPerMonthDto> CowStatusPerMonthDtos { get; set; }
 
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -138,6 +142,10 @@ namespace API.Data
                .HasConversion(x => x.ToString(),
                x => (SensorState)Enum.Parse(typeof(SensorState), x));
           });
+
+            modelBuilder.Entity<IntReturn>().HasNoKey();
+            modelBuilder.Entity<AveragePerMonthDto>().HasNoKey();
+            modelBuilder.Entity<CowStatusPerMonthDto>().HasNoKey();
         }
     }
 }
