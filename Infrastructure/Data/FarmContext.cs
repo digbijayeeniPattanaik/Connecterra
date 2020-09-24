@@ -21,10 +21,7 @@ namespace API.Data
         public DbSet<Sensor> Sensors { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<Farm> Farms { get; set; }
-        ////public DbSet<IntReturn> IntReturn { get; set; }
-        ////public DbSet<AveragePerYearDto> AveragePerYearDtos { get; set; }
-        ////public DbSet<CowStatusPerMonthDto> CowStatusPerMonthDtos { get; set; }
-
+        
         public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
             var auditEntries = OnBeforeSaveChanges();
@@ -145,7 +142,7 @@ namespace API.Data
 
             modelBuilder.Entity<IntReturn>().HasNoKey();
             modelBuilder.Entity<AveragePerMonthDto>().HasNoKey();
-            modelBuilder.Entity<CowStatusPerMonthDto>().HasNoKey();
+            modelBuilder.Entity<StatusPerMonthDto>().HasNoKey();
         }
     }
 }

@@ -13,12 +13,14 @@ namespace API.Controllers
     [ApiController]
     public class CowsController : ControllerBase
     {
-        private readonly ICowDataProvider _cowDataProvider; 
+        private readonly ICowDataProvider _cowDataProvider;
+        private readonly IAuditDataProvider _auditDataProvider;
         private readonly IMapper _mapper;
 
-        public CowsController(ICowDataProvider cowDataProvider, IMapper mapper)
+        public CowsController(ICowDataProvider cowDataProvider,IAuditDataProvider auditDataProvider, IMapper mapper)
         {
             _cowDataProvider = cowDataProvider;
+            _auditDataProvider = auditDataProvider;
             _mapper = mapper;
         }
 
@@ -61,5 +63,16 @@ namespace API.Controllers
 
             return NotFound("Cow not found");
         }
+
+        [HttpGet("count")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<int>> GetCowCountBasedOnDate(string farm, string state, DateTime onDate)
+        {
+            var count = await Task.FromResult(_auditDataProvider.GetStateCountPerDate(onDate, state, "Cows", farm));
+
+            return Ok(count);
+        }
+
     }
 }

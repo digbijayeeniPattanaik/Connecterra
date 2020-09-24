@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using API.Providers.Interfaces;
 using AutoMapper;
 using Infrastructure.Common;
@@ -21,7 +22,7 @@ namespace API.Providers
             _mapper = mapper;
         }
 
-        public List<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
+        public IEnumerable<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
         {
             string whereClause = string.Empty;
             if (onDate != null || !string.IsNullOrWhiteSpace(state) || !string.IsNullOrWhiteSpace(searchType) || !string.IsNullOrWhiteSpace(farm)) whereClause = " WHERE ";
@@ -31,9 +32,7 @@ namespace API.Providers
             int? farmId = null;
             if (!string.IsNullOrWhiteSpace(farm))
             {
-                var spec = new FarmNameSpecifications(a => a.Name.ToLower() == farm.ToLower());
-
-                var farmEntity = _uow.Repository<Farm>().GetEntityWithSpec(spec).Result;
+                Farm farmEntity = GetFarmDetails(farm);
 
                 if (farmEntity != null)
                     farmId = farmEntity.FarmId;
@@ -78,7 +77,7 @@ namespace API.Providers
             return auditList;
         }
 
-        public List<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType)
+        public IEnumerable<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             if (year != 0)
@@ -108,7 +107,7 @@ namespace API.Providers
             return auditList;
         }
 
-        public IntReturn GetCountPerMonth(string state, string month, string searchType)
+        public IntReturn GetStateCountPerMonth(string state, string month, string searchType)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             if (!string.IsNullOrWhiteSpace(month))
@@ -137,13 +136,32 @@ namespace API.Providers
             return count;
         }
 
-        public IntReturn GetStatePerMonth(string state, int month, string searchType)
+        public int GetStateCountPerDate(DateTime? onDate, string state, string searchType, string farm)
         {
-            List<SqlParameter> sqlParameters = new List<SqlParameter>();
-            if (month != 0)
+            var sqlParameters = new List<SqlParameter>();
+
+            int? farmId = null;
+            if (!string.IsNullOrWhiteSpace(farm))
             {
-                SqlParameter yearParameter = new SqlParameter() { ParameterName = "@Month", Value = month };
-                sqlParameters.Add(yearParameter);
+                var farmEntity = GetFarmDetails(farm);
+
+                if (farmEntity != null)
+                    farmId = farmEntity.FarmId;
+
+                SqlParameter farmIdParameter = new SqlParameter() { ParameterName = "@FarmId", Value = farmId };
+                sqlParameters.Add(farmIdParameter);
+            }
+
+            if (onDate != null)
+            {
+                SqlParameter onDateParameter = new SqlParameter()
+                {
+                    ParameterName = "@OnDate",
+                    SqlDbType = System.Data.SqlDbType.DateTime,
+                    IsNullable = true,
+                    Value = onDate
+                };
+                sqlParameters.Add(onDateParameter);
             }
 
             if (!string.IsNullOrWhiteSpace(state))
@@ -157,14 +175,27 @@ namespace API.Providers
                 SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
                 sqlParameters.Add(searchTypeParameter);
             }
+         
+            string sqlQuery = string.Format(@"
+                    select Cast( JSON_VALUE(KeyValues, '$.CowId') as int) as Id , Count(*) as [Count] from Audits where tablename = @SearchType  and cast(AuditDate as date) = @OnDate
+                    and  JSON_VALUE(NewValues, '$.State') =  @State
+                    and  JSON_VALUE(NewValues, '$.FarmId') =  @FarmId   
+                    group by JSON_VALUE(KeyValues, '$.CowId') ");
 
-            string sqlQuery = string.Format(@"SELECT MONTH(AuditDate) AS [Month], COUNT(*) AS [Count] FROM Audits WHERE TableName = @SearchType  AND YEAR(AuditDate) = @Year 
-              AND  JSON_VALUE(NewValues, '$.State') =  @State
-              GROUP BY MONTH(AuditDate)");
+            var auditList = _uow.Repository<StatusPerMonthDto>().QueryFromSqlRawReturnList(sqlQuery, sqlParameters.ToArray());
 
-            var count = _uow.Repository<IntReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
-
-            return count;
+            if (auditList == null || !auditList.Any()) return 0;
+            return auditList.Count;
         }
+
+
+        private Farm GetFarmDetails(string farm)
+        {
+            var spec = new FarmNameSpecifications(a => a.Name.ToLower() == farm.ToLower());
+
+            var farmEntity = _uow.Repository<Farm>().GetEntityWithSpec(spec).Result;
+            return farmEntity;
+        }
+
     }
 }

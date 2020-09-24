@@ -7,8 +7,9 @@ namespace API.Providers.Interfaces
 {
     public interface IAuditDataProvider
     {
-        List<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm);
-        List<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType);
-        IntReturn GetCountPerMonth(string state, string month, string searchType);
+        IEnumerable<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm);
+        IEnumerable<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType);
+        IntReturn GetStateCountPerMonth(string state, string month, string searchType);
+        int GetStateCountPerDate(DateTime? onDate, string state, string searchType, string farm);
     }
 }

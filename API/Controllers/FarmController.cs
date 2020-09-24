@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using API.Data;
 using Infrastructure.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,11 @@ namespace API.Controllers
         {
             _farmContext = farmContext;
         }
-        public async Task<ActionResult<IReadOnlyList<Farm>>> GetCows()
+
+        [HttpGet]
+        [ProducesResponseType(typeof(IReadOnlyList<Farm>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IReadOnlyList<Farm>>> GetFarms()
         {
             var farmList = await _farmContext.Farms.ToListAsync();
 

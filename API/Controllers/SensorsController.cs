@@ -87,12 +87,12 @@ namespace API.Controllers
             return Ok(average);
         }
 
-        [HttpGet("{state}/count/{month}")]
+        [HttpGet("count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<int>> GetSensorCountPerMonth(string state, string month)
         {
-            var average = await Task.FromResult(_auditDataProvider.GetCountPerMonth(state, month, "Sensors"));
+            var average = await Task.FromResult(_auditDataProvider.GetStateCountPerMonth(state, month, "Sensors"));
             return Ok(average.Value);
         }
     }
