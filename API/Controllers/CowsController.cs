@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using API.Dtos;
-using API.Helpers;
 using API.Providers.Interfaces;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
@@ -26,6 +24,10 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get list of cows
+        /// </summary>
+        /// <returns><seealso cref="IReadOnlyList{CowDto}"/></returns>
         [HttpGet()]
         [ProducesResponseType(typeof(IReadOnlyList<CowDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -35,6 +37,11 @@ namespace API.Controllers
             return Ok(_mapper.Map<IReadOnlyList<CowDto>>(cowList));
         }
 
+        /// <summary>
+        /// Get Cow based on cow ID
+        /// </summary>
+        /// <param name="id">Cow Id</param>
+        /// <returns><seealso cref="CowDto"/></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(CowDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -50,7 +57,13 @@ namespace API.Controllers
                 return NotFound("Cow not found");
         }
 
-        [HttpPost("{cowId}")]
+        /// <summary>
+        /// Update the cow's status based on CowId
+        /// </summary>
+        /// <param name="cowId">cowId to update cow</param>
+        /// <param name="stateDto">Dto to update status</param>
+        /// <returns><seealso cref="CowDto"/></returns>
+        [HttpPut("{cowId}")]
         [ProducesResponseType(typeof(CowDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CowDto>> Update(int cowId, [FromBody]StateDto stateDto)
@@ -66,6 +79,13 @@ namespace API.Controllers
             return BadRequest(outcome.ErrorMessage);
         }
 
+        /// <summary>
+        /// Get Cow count base on farm , state and Date
+        /// </summary>
+        /// <param name="farm">farm</param>
+        /// <param name="state">state like Open, Inseminated, Pregnant, Dry</param>
+        /// <param name="onDate">onDate</param>
+        /// <returns>int</returns>
         [HttpGet("count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

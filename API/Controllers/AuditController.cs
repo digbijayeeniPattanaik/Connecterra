@@ -23,6 +23,14 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get Audit List
+        /// </summary>
+        /// <param name="onDate">onDate</param>
+        /// <param name="state">state Like if SearchType is Cows then ->State: Open, Inseminated, Pregnant, Dry. If SearchType is Sensor ->State: Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished</param>
+        /// <param name="searchType">searchType like Cows or Sensors</param>
+        /// <param name="farm">Farm name</param>
+        /// <returns><seealso cref="List{Audit}"/></returns>
         [HttpGet]
         [ProducesResponseType(typeof(List<Audit>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

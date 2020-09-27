@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Skinet API",
+    "title": "Farm API",
     "version": "v1"
   },
   "paths": {
@@ -10,12 +10,15 @@
         "tags": [
           "Audit"
         ],
+        "summary": "Get Audit List",
         "parameters": [
           {
             "name": "onDate",
             "in": "query",
+            "description": "onDate",
             "schema": {
               "type": "string",
+              "description": "onDate",
               "format": "date-time",
               "nullable": true
             }
@@ -23,24 +26,30 @@
           {
             "name": "state",
             "in": "query",
+            "description": "state Like if SearchType is Cows then ->State: Open, Inseminated, Pregnant, Dry. If SearchType is Sensor ->State: Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
             "schema": {
               "type": "string",
+              "description": "state Like if SearchType is Cows then ->State: Open, Inseminated, Pregnant, Dry. If SearchType is Sensor ->State: Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
               "nullable": true
             }
           },
           {
             "name": "searchType",
             "in": "query",
+            "description": "searchType like Cows or Sensors",
             "schema": {
               "type": "string",
+              "description": "searchType like Cows or Sensors",
               "nullable": true
             }
           },
           {
             "name": "farm",
             "in": "query",
+            "description": "Farm name",
             "schema": {
               "type": "string",
+              "description": "Farm name",
               "nullable": true
             }
           }
@@ -103,6 +112,7 @@
         "tags": [
           "Cows"
         ],
+        "summary": "Get list of cows",
         "responses": {
           "200": {
             "description": "Success",
@@ -161,13 +171,16 @@
         "tags": [
           "Cows"
         ],
+        "summary": "Get Cow based on cow ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "Cow Id",
             "required": true,
             "schema": {
               "type": "integer",
+              "description": "Cow Id",
               "format": "int32"
             }
           }
@@ -217,22 +230,26 @@
       }
     },
     "/api/Cows/{cowId}": {
-      "post": {
+      "put": {
         "tags": [
           "Cows"
         ],
+        "summary": "Update the cow's status based on CowId",
         "parameters": [
           {
             "name": "cowId",
             "in": "path",
+            "description": "cowId to update cow",
             "required": true,
             "schema": {
               "type": "integer",
+              "description": "cowId to update cow",
               "format": "int32"
             }
           }
         ],
         "requestBody": {
+          "description": "Dto to update status",
           "content": {
             "application/json": {
               "schema": {
@@ -300,28 +317,35 @@
         "tags": [
           "Cows"
         ],
+        "summary": "Get Cow count base on farm , state and Date",
         "parameters": [
           {
             "name": "farm",
             "in": "query",
+            "description": "farm",
             "schema": {
               "type": "string",
+              "description": "farm",
               "nullable": true
             }
           },
           {
             "name": "state",
             "in": "query",
+            "description": "state like Open, Inseminated, Pregnant, Dry",
             "schema": {
               "type": "string",
+              "description": "state like Open, Inseminated, Pregnant, Dry",
               "nullable": true
             }
           },
           {
             "name": "onDate",
             "in": "query",
+            "description": "onDate",
             "schema": {
               "type": "string",
+              "description": "onDate",
               "format": "date-time"
             }
           }
@@ -378,6 +402,7 @@
         "tags": [
           "Farm"
         ],
+        "summary": "Get list of Farms",
         "responses": {
           "200": {
             "description": "Success",
@@ -436,6 +461,7 @@
         "tags": [
           "Sensors"
         ],
+        "summary": "Get list of Sensors",
         "responses": {
           "200": {
             "description": "Success",
@@ -492,7 +518,9 @@
         "tags": [
           "Sensors"
         ],
+        "summary": "Add a Sensor",
         "requestBody": {
+          "description": "Sensor object",
           "content": {
             "application/json": {
               "schema": {
@@ -560,13 +588,16 @@
         "tags": [
           "Sensors"
         ],
+        "summary": "Get Sensor based on Sensor ID",
         "parameters": [
           {
             "name": "id",
             "in": "path",
+            "description": "sensor ID",
             "required": true,
             "schema": {
               "type": "integer",
+              "description": "sensor ID",
               "format": "int32"
             }
           }
@@ -616,22 +647,26 @@
       }
     },
     "/api/Sensors/{sensorId}": {
-      "post": {
+      "put": {
         "tags": [
           "Sensors"
         ],
+        "summary": "Update a Sensor",
         "parameters": [
           {
             "name": "sensorId",
             "in": "path",
+            "description": "Sensor ID",
             "required": true,
             "schema": {
               "type": "integer",
+              "description": "Sensor ID",
               "format": "int32"
             }
           }
         ],
         "requestBody": {
+          "description": "State dto",
           "content": {
             "application/json": {
               "schema": {
@@ -699,20 +734,25 @@
         "tags": [
           "Sensors"
         ],
+        "summary": "Get Sensor Average per month",
         "parameters": [
           {
             "name": "state",
             "in": "query",
+            "description": "Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
             "schema": {
               "type": "string",
+              "description": "Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
               "nullable": true
             }
           },
           {
             "name": "year",
             "in": "query",
+            "description": "Year",
             "schema": {
               "type": "integer",
+              "description": "Year",
               "format": "int32"
             }
           }
@@ -775,20 +815,25 @@
         "tags": [
           "Sensors"
         ],
+        "summary": "Get Sensor Count per month",
         "parameters": [
           {
             "name": "state",
             "in": "query",
+            "description": "Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
             "schema": {
               "type": "string",
+              "description": "Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished",
               "nullable": true
             }
           },
           {
             "name": "month",
             "in": "query",
+            "description": "Month like January ,February ,March ,April ,May ,June ,July ,August ,September ,October ,November ,December",
             "schema": {
               "type": "string",
+              "description": "Month like January ,February ,March ,April ,May ,June ,July ,August ,September ,October ,November ,December",
               "nullable": true
             }
           }
@@ -1056,20 +1101,6 @@
         },
         "additionalProperties": false
       }
-    },
-    "securitySchemes": {
-      "Bearer": {
-        "type": "http",
-        "description": "JWT Auth Bearer Scheme",
-        "scheme": "bearer"
-      }
     }
-  },
-  "security": [
-    {
-      "Bearer": [
-        "Bearer"
-      ]
-    }
-  ]
+  }
 }

@@ -19,6 +19,10 @@ namespace API.Controllers
             _farmContext = farmContext;
         }
 
+        /// <summary>
+        /// Get list of Farms
+        /// </summary>
+        /// <returns><seealso cref="IReadOnlyList{Farm}"/></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<Farm>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

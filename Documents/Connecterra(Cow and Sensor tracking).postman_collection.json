@@ -1,0 +1,301 @@
+{
+	"info": {
+		"_postman_id": "37543a04-a996-4a8f-b103-498d8848a8bf",
+		"name": "Connecterra(Cow and Sensor tracking)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Sensor",
+			"item": [
+				{
+					"name": "Update sensor by dto",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"state\": \"Pregnant\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/cows/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"cows",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get sensor by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/sensors/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"sensors",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all sensors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/sensors",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Sensor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"state\": \"Deployed\",\r\n     \"farm\": \"Patton\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/sensors",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sensor state average Per year ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/sensors/Deployed/average/2020",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"sensors",
+								"Deployed",
+								"average",
+								"2020"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Sensor state count Per month",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/sensors/Deployed/average/2020",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"sensors",
+								"Deployed",
+								"average",
+								"2020"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Cow",
+			"item": [
+				{
+					"name": "Get Cows All",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/cows",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"cows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get cow by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/cows/3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"cows",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update cow by dto",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"state\": \"Pregnant\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/cows/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"cows",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cow state count Per Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/cows/count?state=Pregnant&farm=Rachelle&onDate=2020-09-23",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"cows",
+								"count"
+							],
+							"query": [
+								{
+									"key": "state",
+									"value": "Pregnant"
+								},
+								{
+									"key": "farm",
+									"value": "Rachelle"
+								},
+								{
+									"key": "onDate",
+									"value": "2020-09-23"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Get Audit List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/api/Audit?farm=Rachelle&state=Pregnant&SearchType=Cows&onDate=2020-09-23",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"Audit"
+					],
+					"query": [
+						{
+							"key": "farm",
+							"value": "Rachelle"
+						},
+						{
+							"key": "state",
+							"value": "Pregnant"
+						},
+						{
+							"key": "SearchType",
+							"value": "Cows"
+						},
+						{
+							"key": "onDate",
+							"value": "2020-09-23"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Farm",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

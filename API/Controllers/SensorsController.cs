@@ -24,6 +24,10 @@ namespace API.Controllers
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Get list of Sensors
+        /// </summary>
+        /// <returns><seealso cref="IReadOnlyList{SensorDto}"/></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<SensorDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -33,6 +37,11 @@ namespace API.Controllers
             return Ok(_mapper.Map<IReadOnlyList<SensorDto>>(sensorList));
         }
 
+        /// <summary>
+        /// Get Sensor based on Sensor ID
+        /// </summary>
+        /// <param name="id">sensor ID</param>
+        /// <returns><seealso cref="SensorDto"/></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,6 +56,11 @@ namespace API.Controllers
                 return NotFound("Sensor not found");
         }
 
+        /// <summary>
+        /// Add a Sensor
+        /// </summary>
+        /// <param name="sensorDto"> Sensor object </param>
+        /// <returns><seealso cref="SensorDto"/></returns>
         [HttpPost]
         [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,7 +76,13 @@ namespace API.Controllers
             return NotFound("Farm not found");
         }
 
-        [HttpPost("{sensorId}")]
+        /// <summary>
+        /// Update a Sensor
+        /// </summary>
+        /// <param name="sensorId">Sensor ID</param>
+        /// <param name="stateDto">State dto</param>
+        /// <returns><seealso cref="SensorDto"/></returns>
+        [HttpPut("{sensorId}")]
         [ProducesResponseType(typeof(SensorDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> Update(int sensorId, [FromBody]StateDto stateDto)
@@ -78,6 +98,12 @@ namespace API.Controllers
             return BadRequest(outcome.ErrorMessage);
         }
 
+        /// <summary>
+        /// Get Sensor Average per month
+        /// </summary>
+        /// <param name="state">Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished</param>
+        /// <param name="year">Year</param>
+        /// <returns><seealso cref="IReadOnlyList{AveragePerMonthDto}"/></returns>
         [HttpGet("average")]
         [ProducesResponseType(typeof(IReadOnlyList<AveragePerMonthDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -87,6 +113,12 @@ namespace API.Controllers
             return Ok(average);
         }
 
+        /// <summary>
+        /// Get Sensor Count per month
+        /// </summary>
+        /// <param name="state">Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished</param>
+        /// <param name="month">Month like January ,February ,March ,April ,May ,June ,July ,August ,September ,October ,November ,December</param>
+        /// <returns>int</returns>
         [HttpGet("count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
