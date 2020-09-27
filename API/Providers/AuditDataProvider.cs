@@ -79,7 +79,7 @@ namespace API.Providers
             return auditList;
         }
 
-        public IEnumerable<AveragePerMonthDto> GetAveragePerMonth(string state, int year, string searchType)
+        public Outcome<decimal> GetAveragePerMonth(string state, int year, string searchType)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             if (year != 0)
@@ -100,16 +100,17 @@ namespace API.Providers
                 sqlParameters.Add(searchTypeParameter);
             }
 
-            string sqlQuery = string.Format(@"SELECT DATENAME(MONTH, AuditDate) AS [Month], COUNT(*) AS [Count] FROM Audits WHERE TableName = @SearchType  AND YEAR(AuditDate) = @Year 
-              AND  JSON_VALUE(NewValues, '$.State') =  @State
-              GROUP BY DATENAME(MONTH, AuditDate)");
+            string sqlQuery = string.Format(@"SELECT cast(CONVERT(decimal(10,2), Count(*))/CONVERT(decimal(10,2), 12) AS decimal(10,2)) AS [Value] FROM Audits WHERE TableName = @SearchType  AND YEAR(AuditDate) = @Year 
+              AND  JSON_VALUE(NewValues, '$.State') =  @State");
 
-            var auditList = _uow.Repository<AveragePerMonthDto>().QueryFromSqlRawReturnList(sqlQuery, sqlParameters.ToArray());
+            var outcome = _uow.Repository<DecimalReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
 
-            return auditList;
+            if (outcome != null)
+                return new Outcome<decimal> { Result = outcome.Value };
+            else return new Outcome<decimal>("No record found");
         }
 
-        public IntReturn GetStateCountPerMonth(string state, string month, string searchType)
+        public Outcome<int> GetStateCountPerMonth(string state, string month, string searchType)
         {
             List<SqlParameter> sqlParameters = new List<SqlParameter>();
             if (!string.IsNullOrWhiteSpace(month))
@@ -133,9 +134,11 @@ namespace API.Providers
             string sqlQuery = string.Format(@"SELECT COUNT(*) AS [Value] FROM Audits WHERE TableName = @SearchType  AND DATENAME(MONTH, AuditDate) =  @Month
                AND  JSON_VALUE(NewValues, '$.State') =  @State  ");
 
-            var count = _uow.Repository<IntReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
+            var outcome = _uow.Repository<IntReturn>().QueryFromSqlRaw(sqlQuery, sqlParameters.ToArray());
 
-            return count;
+            if (outcome != null)
+                return new Outcome<int> { Result = outcome.Value };
+            else return new Outcome<int>("No record found");
         }
 
         public Outcome<int> GetStateCountPerDate(DateTime? onDate, string state, string searchType, string farm)
@@ -153,7 +156,7 @@ namespace API.Providers
 
             if (errorMessages != null && errorMessages.Any())
             {
-                result.ErrorMessage = string.Join(",",errorMessages.ToList());
+                result.ErrorMessage = string.Join(",", errorMessages.ToList());
                 return result;
             }
             var sqlParameters = new List<SqlParameter>();

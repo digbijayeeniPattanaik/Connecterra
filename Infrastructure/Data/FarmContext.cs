@@ -141,7 +141,7 @@ namespace API.Data
           });
 
             modelBuilder.Entity<IntReturn>().HasNoKey();
-            modelBuilder.Entity<AveragePerMonthDto>().HasNoKey();
+            modelBuilder.Entity<DecimalReturn>().HasNoKey();
             modelBuilder.Entity<StatusPerMonthDto>().HasNoKey();
         }
     }

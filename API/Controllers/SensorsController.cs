@@ -103,14 +103,16 @@ namespace API.Controllers
         /// </summary>
         /// <param name="state">Sensor state like Inventory, Deployed, FarmerTriage, Returned, Dead, Refurbished</param>
         /// <param name="year">Year</param>
-        /// <returns><seealso cref="IReadOnlyList{AveragePerMonthDto}"/></returns>
+        /// <returns>decimal</returns>
         [HttpGet("average")]
-        [ProducesResponseType(typeof(IReadOnlyList<AveragePerMonthDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<IReadOnlyList<AveragePerMonthDto>>> GetSensorsAveragePerMonth(string state, int year)
+        [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IReadOnlyList<DecimalReturn>>> GetSensorsAveragePerMonth(string state, int year)
         {
-            var average = await Task.FromResult(_auditDataProvider.GetAveragePerMonth(state, year, "Sensors"));
-            return Ok(average);
+            var outcome = await Task.FromResult(_auditDataProvider.GetAveragePerMonth(state, year, "Sensors"));
+            if (outcome.Successful)
+                return Ok(outcome.Result);
+            else return BadRequest(outcome.ErrorMessage);
         }
 
         /// <summary>
@@ -121,11 +123,13 @@ namespace API.Controllers
         /// <returns>int</returns>
         [HttpGet("count")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<int>> GetSensorCountPerMonth(string state, string month)
         {
-            var average = await Task.FromResult(_auditDataProvider.GetStateCountPerMonth(state, month, "Sensors"));
-            return Ok(average.Value);
+            var outcome = await Task.FromResult(_auditDataProvider.GetStateCountPerMonth(state, month, "Sensors"));
+            if (outcome.Successful)
+                return Ok(outcome.Result);
+            else return BadRequest(outcome.ErrorMessage);
         }
     }
 }
