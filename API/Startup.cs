@@ -1,4 +1,5 @@
 using API.Data;
+using API.Extensions;
 using API.Helpers;
 using API.Providers;
 using API.Providers.Interfaces;
@@ -32,6 +33,7 @@ namespace API
             services.AddScoped<IAuditDataProvider, AuditDataProvider>();
             services.AddScoped<ICowDataProvider, CowDataProvider>();
             services.AddScoped<ISensorDataProvider, SensorDataProvider>();
+            services.AddSwaggerDocumentation();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -48,6 +50,7 @@ namespace API
 
             app.UseAuthorization();
 
+            app.UseSwaggerDocumentation();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
