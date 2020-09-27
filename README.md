@@ -1,7 +1,7 @@
 # Connecterra - Cow and Sensor Tracking system.
 
 - The application is created using .net core and EntityFramework core and database in Microsoft SQL.
-- We have a standard SQL database with 4 tables: DBname as farmDB.
+- The application has a standard SQL database with 4 tables: DBname as farmDB.
     - [dbo].[Audits]
     - [dbo].[Cows]
     - [dbo].[Farms]
