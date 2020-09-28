@@ -66,14 +66,14 @@ namespace API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<SensorDto>> Add([FromBody]SensorAddDto sensorDto)
         {
-            var sensor = await _sensorDataProvider.Add(sensorDto);
+            var outcome = await _sensorDataProvider.Add(sensorDto);
 
-            if (sensor != null)
+            if (outcome.Successful)
             {
-                return Ok(_mapper.Map<SensorDto>(sensor));
+                return Ok(_mapper.Map<SensorDto>(outcome.Result));
             }
 
-            return NotFound("Farm not found");
+            return BadRequest(outcome.ErrorMessage);
         }
 
         /// <summary>

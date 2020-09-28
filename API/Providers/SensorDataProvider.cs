@@ -21,26 +21,38 @@ namespace API.Providers
             _uow = uow;
         }
 
-        public async Task<Sensor> Add(SensorAddDto sensorDto)
+        public async Task<Outcome<Sensor>> Add(SensorAddDto sensorDto)
         {
+            var result = new Outcome<Sensor>();
+
+            if (!Enum.GetNames(typeof(SensorState)).Any(x => x.Equals(sensorDto.State, StringComparison.InvariantCultureIgnoreCase)))
+            {
+                result.ErrorMessage = "State is not valid";
+                return result;
+            }
+
             var farm = await _uow.Repository<Farm>().GetEntityWithSpec(new FarmNameSpecifications(a => a.Name.ToLower() == sensorDto.Farm.ToLower()));
 
             if (farm != null)
             {
+                var state = Enum.GetNames(typeof(SensorState)).FirstOrDefault(x => x.Equals(sensorDto.State, StringComparison.InvariantCultureIgnoreCase));
                 var sensor = new Sensor();
                 sensor.FarmId = farm.FarmId;
-                sensor.State = (SensorState)Enum.Parse(typeof(SensorState), sensorDto.State);
+                sensor.State = (SensorState)Enum.Parse(typeof(SensorState), state);
+
                 sensor.CreateDt = DateTime.Now;
                 _uow.Repository<Sensor>().Add(sensor);
                 int output = await _uow.Complete();
 
                 if (output >= 1)
                 {
-                    return sensor;
+                    result.Result = sensor;
+                    return result;
                 }
             }
+            else  result.ErrorMessage = "Farm not found";
 
-            return null;
+            return result;
         }
 
         public async Task<Sensor> GetSensor(int id)
@@ -82,7 +94,7 @@ namespace API.Providers
                 }
                 result.Result = sensor;
             }
-            else result.ErrorMessage = "Cow not found";
+            else result.ErrorMessage = "Sensor not found";
 
             return result;
 

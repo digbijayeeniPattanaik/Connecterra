@@ -10,7 +10,7 @@ namespace API.Providers.Interfaces
     {
         Task<IReadOnlyList<Sensor>> GetSensors();
         Task<Sensor> GetSensor(int id);
-        Task<Sensor> Add(SensorAddDto sensorDto);
+        Task<Outcome<Sensor>> Add(SensorAddDto sensorDto);
         Task<Outcome<Sensor>> Update(int sensorId, StateDto stateDto);
     }
 }

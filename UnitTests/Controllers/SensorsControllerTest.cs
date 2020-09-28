@@ -66,6 +66,26 @@ namespace UnitTests.Controllers
         }
 
         [TestMethod]
+        public async Task Test_Add_Successful()
+        {
+            _mocksensorDataProvider.Setup(a => a.Add(It.IsAny<SensorAddDto>())).ReturnsAsync(
+              new Outcome<Sensor>()
+              {
+                  Result = new Sensor() { SensorId = 1, CreateDt = DateTime.Now, FarmId = 1, State = API.Helpers.SensorState.Dead }
+              }
+            );
+
+            _mockmapper.Setup(a => a.Map<SensorDto>(It.IsAny<Sensor>())).Returns(
+              new SensorDto() { SensorId = 1, Farm = "Rich", State = API.Helpers.SensorState.Dead.ToString() }
+            );
+
+            var result = await sensorsController.Add(It.IsAny<SensorAddDto>());
+
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(Microsoft.AspNetCore.Mvc.ActionResult<SensorDto>));
+        }
+
+        [TestMethod]
         public async Task Test_Update_Successful()
         {
             _mocksensorDataProvider.Setup(a => a.Update(It.IsAny<int>(), It.IsAny<StateDto>())).ReturnsAsync(
