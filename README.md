@@ -83,3 +83,9 @@ Part 2. You also need to write a simple API that can answer the questions listed
 3. On average how many new sensors are deployed every month in 2020?
     - The API which can be used to achieve this is implemented under - GET  ​/api​/Sensors​/average - Get Sensor Average based on year and status
     - This is achieved by checking the audit details.
+    
+    
+    
+## Future Improvement
+- If provided with more time i could write more Unit tests for more code coverage.
+- Create custom AuditDto to return user friendly response for GetAuditList operation.
