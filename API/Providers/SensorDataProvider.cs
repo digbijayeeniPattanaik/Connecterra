@@ -15,10 +15,12 @@ namespace API.Providers
     public class SensorDataProvider : ISensorDataProvider
     {
         private readonly IUnitOfWork _uow;
+        private readonly IAuditDataProvider _auditDataProvider;
 
-        public SensorDataProvider(IUnitOfWork uow)
+        public SensorDataProvider(IUnitOfWork uow, IAuditDataProvider auditDataProvider)
         {
             _uow = uow;
+            _auditDataProvider = auditDataProvider;
         }
 
         public async Task<Outcome<Sensor>> Add(SensorAddDto sensorDto)
@@ -50,7 +52,7 @@ namespace API.Providers
                     return result;
                 }
             }
-            else  result.ErrorMessage = "Farm not found";
+            else result.ErrorMessage = "Farm not found";
 
             return result;
         }
@@ -83,15 +85,16 @@ namespace API.Providers
 
             if (sensor != null)
             {
-                var state = Enum.GetNames(typeof(SensorState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
-                //// if the state is same
-                if (sensor.State != (SensorState)Enum.Parse(typeof(SensorState), state))
+                var auditData = _auditDataProvider.GetAuditList(DateTime.Now.Date, string.Empty, "Sensors", sensor.Farm.Name, sensor.SensorId);
+                if (auditData != null && auditData.Any())
                 {
-                    sensor.State = (SensorState)Enum.Parse(typeof(SensorState), state);
-                    sensor.UpdateDt = DateTime.Now;
-                    _uow.Repository<Sensor>().Update(sensor);
-                    int output = await _uow.Complete();
+                    sensor.RecordFlag = "Error";
                 }
+                var state = Enum.GetNames(typeof(SensorState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
+                sensor.State = (SensorState)Enum.Parse(typeof(SensorState), state);
+                sensor.UpdateDt = DateTime.Now;
+                _uow.Repository<Sensor>().Update(sensor);
+                int output = await _uow.Complete();
                 result.Result = sensor;
             }
             else result.ErrorMessage = "Sensor not found";

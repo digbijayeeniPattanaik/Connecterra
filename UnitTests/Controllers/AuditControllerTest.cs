@@ -23,14 +23,13 @@ namespace UnitTests.Controllers
         {
             _mockAuditDataProvider = new Mock<IAuditDataProvider>();
             _mockMapper = new Mock<IMapper>();
-
             auditController = new AuditController(_mockAuditDataProvider.Object, _mockMapper.Object);
         }
 
         [TestMethod]
         public async Task Test_GetAudit_WhenResults_Successful()
         {
-            _mockAuditDataProvider.Setup(a => a.GetAuditList(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(new List<Audit>()
+            _mockAuditDataProvider.Setup(a => a.GetAuditList(It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>())).Returns(new List<Audit>()
             {
               new Audit(){ AuditId = 1, AuditDate = DateTime.Now,TableName = "Test"}
             });

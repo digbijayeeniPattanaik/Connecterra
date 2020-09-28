@@ -15,10 +15,12 @@ namespace API.Providers
     public class CowDataProvider : ICowDataProvider
     {
         private readonly IUnitOfWork _uow;
+        private readonly IAuditDataProvider _auditDataProvider;
 
-        public CowDataProvider(IUnitOfWork uow)
+        public CowDataProvider(IUnitOfWork uow, IAuditDataProvider auditDataProvider)
         {
             _uow = uow;
+            _auditDataProvider = auditDataProvider;
         }
 
         public async Task<Cow> GetCow(int id)
@@ -49,15 +51,18 @@ namespace API.Providers
             var cow = await _uow.Repository<Cow>().GetEntityWithSpec(cowSpecification);
             if (cow != null)
             {
-                var state = Enum.GetNames(typeof(CowState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
-                //// if the state is same
-                if (cow.State != (CowState)Enum.Parse(typeof(CowState), state))
+                var auditData = _auditDataProvider.GetAuditList(DateTime.Now.Date, string.Empty, "Cows", cow.Farm.Name, cow.CowId);
+                if (auditData != null && auditData.Any())
                 {
-                    cow.State = (CowState)Enum.Parse(typeof(CowState), state);
-                    cow.UpdateDt = DateTime.Now;
-                    _uow.Repository<Cow>().Update(cow);
-                    int output = await _uow.Complete();
+                    cow.RecordFlag = "Error";
                 }
+                var state = Enum.GetNames(typeof(CowState)).FirstOrDefault(x => x.Equals(stateDto.State, StringComparison.InvariantCultureIgnoreCase));
+
+                cow.State = (CowState)Enum.Parse(typeof(CowState), state);
+                cow.UpdateDt = DateTime.Now;
+                _uow.Repository<Cow>().Update(cow);
+                int output = await _uow.Complete();
+
                 result.Result = cow;
             }
             else

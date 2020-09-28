@@ -24,7 +24,7 @@ namespace API.Providers
             _mapper = mapper;
         }
 
-        public IEnumerable<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm)
+        public IEnumerable<Audit> GetAuditList(DateTime? onDate, string state, string searchType, string farm, int? id = default(int?))
         {
             string whereClause = string.Empty;
             if (onDate != null || !string.IsNullOrWhiteSpace(state) || !string.IsNullOrWhiteSpace(searchType) || !string.IsNullOrWhiteSpace(farm)) whereClause = " WHERE ";
@@ -69,6 +69,15 @@ namespace API.Providers
                 whereClause += "  TableName = @SearchType ";
                 SqlParameter searchTypeParameter = new SqlParameter() { ParameterName = "@SearchType", Value = searchType };
                 sqlParameters.Add(searchTypeParameter);
+
+                if (id != null)
+                {
+                    if (searchType.Equals("Sensors", StringComparison.InvariantCultureIgnoreCase))
+                        whereClause += "  and JSON_VALUE(KeyValues, '$.SensorId') = @Id ";
+                    else whereClause += "  and JSON_VALUE(KeyValues, '$.CowId') = @Id ";
+                    SqlParameter IdParameter = new SqlParameter() { ParameterName = "@Id", Value = id };
+                    sqlParameters.Add(IdParameter);
+                }
             }
 
             if (whereClause.EndsWith(" AND ")) whereClause = whereClause.Substring(0, whereClause.LastIndexOf(" AND "));
