@@ -59,9 +59,14 @@
    - PUT ​/api​/Cows​/{cowId} - Update the cow's status based on CowId
    - PUT ​/api​/Sensors​/{sensorId} - Update a Sensor status
 
-These changes are happening on a regular basis, i.e. multiple times a day from various sources. Sometimes errors may be committed as well, e.g., the cow's state can change from Pregnant to Dry and back to Pregnant within the same day. Typically cow state changes and sensor state changes occur after multiple days, so any quick changes happening in succession are generally erroneous and need to be flagged.
+These changes are happening on a regular basis, i.e. multiple times a day from various sources. Sometimes errors may be committed as well, e.g., the cow's state can change from Pregnant to Dry and back to Pregnant within the same day. Typically cow state changes and sensor state changes occur after multiple days, so any quick changes happening in succession are generally erroneous and need to be flagged. 
+     The API which can be used to achieve this is implemented under 
+   - PUT ​/api​/Cows​/{cowId} - Update the cow's status based on CowId
+   - PUT ​/api​/Sensors​/{sensorId} - Update a Sensor status
+   - There is a RecordFlag property in both Cows and Sensors table which is updated to Error if there is any quick changes happening in succession.
+   - This is achieved by checking the audit details of that record on that particular date. If there is a audit record then the flag is set to Error.
 
-
+    
 Part 1. You need to design an architecture for tracking this historical state, then implement it. Use your choice of database, microservice, language, platform, etc. technology. Would you update the existing database with any additional fields? If so, how would you index them? Additionally you may choose not to use the existing database to track these changes. If so, what kind of a mechanism would you use? How would you listen for these changes?
 
 - I have used EntityFrameworkCore ChangeTracker to achieve the Audit trail of the data update and create. As part of this implementation I have created an Audit table and stored the audit details in that table whenever there is a change in state of Cow and Sensor.
@@ -70,8 +75,11 @@ Part 1. You need to design an architecture for tracking this historical state, t
 Part 2. You also need to write a simple API that can answer the questions listed above.
 
 1. How many cows are pregnant on farm "A" on a specific date? 
-    - The API which can be used to achieve this is implemented under  - GET  ​/api​/Cows​/count - Get Cow count base on farm , state and Date
+    - The API which can be used to achieve this is implemented under  - GET  ​/api​/Cows​/count - Get Cow count based on farm ,state and Date.
+    - This is achieved by checking the audit details.
 2. How many sensors died in June across the platform?
-    - The API which can be used to achieve this is implemented under  - GET  ​/api​/Sensors​/count - Get Sensor Count per month based on status
+    - The API which can be used to achieve this is implemented under  - GET  ​/api​/Sensors​/count - Get Sensor Count based on month and status
+    - This is achieved by checking the audit details.
 3. On average how many new sensors are deployed every month in 2020?
-    - The API which can be used to achieve this is implemented under - GET  ​/api​/Sensors​/average - Get Sensor Average per month
+    - The API which can be used to achieve this is implemented under - GET  ​/api​/Sensors​/average - Get Sensor Average based on year and status
+    - This is achieved by checking the audit details.
