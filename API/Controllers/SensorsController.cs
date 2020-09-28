@@ -107,7 +107,7 @@ namespace API.Controllers
         [HttpGet("average")]
         [ProducesResponseType(typeof(decimal), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IReadOnlyList<DecimalReturn>>> GetSensorsAveragePerMonth(string state, int year)
+        public async Task<ActionResult<decimal>> GetSensorsAveragePerMonth(string state, int year)
         {
             var outcome = await Task.FromResult(_auditDataProvider.GetAveragePerMonth(state, year, "Sensors"));
             if (outcome.Successful)
